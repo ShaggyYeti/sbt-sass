@@ -26,7 +26,7 @@ gem install compass
 
    addSbtPlugin("default" % "sbt-sass" % "0.1")
    ```
-2. Run play
+2. Run `activator`
 
 ## Compilation from sources
 1. Clone from this repo
@@ -34,11 +34,12 @@ gem install compass
    git clone https://github.com/ShaggyYeti/sbt-sass.git
    ```
 2. Enter to folder with sbt-sass and run `sbt`
-3. In sbt-console execute comand `publishLocal`
+3. In sbt-console execute command `publishLocal`
 4. Add line in your play project to project/plugins.sbt
-```
-addSbtPlugin("default" % "sbt-sass" % "0.1")
-```
+   ```
+   addSbtPlugin("default" % "sbt-sass" % "0.1")
+   ```
+5. Run `activator`
 
 # Usage
 * `*.sass` and `*.scss` files in `app/assets/*` directories will be automatically compiled to `*.css` files.
