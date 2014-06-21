@@ -1,4 +1,4 @@
-sbt-sass
+sbt-sass for play framework 2.3
 ========
 
 Plugin based on [play-sass][play-sass] for Play Framework 2.2.x 
