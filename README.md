@@ -22,7 +22,7 @@ gem install compass
 ## External GitHub repository (Recommended)
 1. Add line to `project/plugins.sbt`
    ```
-   resolvers += Resolver.url("GitHub repository", url("http://shaggyyeti.github.io/releases")(Resolver.ivyStylePatterns)
+   resolvers += Resolver.url("GitHub repository", url("http://shaggyyeti.github.io/releases"))(Resolver.ivyStylePatterns)
 
    addSbtPlugin("default" % "sbt-sass" % "0.1")
    ```
