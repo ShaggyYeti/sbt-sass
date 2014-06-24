@@ -10,6 +10,7 @@ object Import {
   val sass = TaskKey[Seq[File]]("sass", "Generate css files from scss and sass")
   val sassEntryPoints = SettingKey[PathFinder]("Finder for sass and scss files")
   val sassOptions = SettingKey[Seq[String]]("sassOptions", "Additional sass options")
+  val sassPublicDir = SettingKey[String]("sassPublicDir", "Directory name for storing published css files. Default: sass")
 }
 
 
@@ -25,23 +26,15 @@ object SbtSass extends AutoPlugin {
   import autoImport._
 
   val baseSbtSassSettings = Seq(
-    sassEntryPoints <<= (sourceDirectory in Compile)(base => ((base / "assets" ** "*.sass") +++ (base / "assets" ** "*.scss") --- base / "assets" ** "_*")),
+    sassEntryPoints <<= (sourceDirectory in Compile)(srcPath => ((srcPath / "public" ** "*.sass") +++ (srcPath / "public" ** "*.scss") --- srcPath / "public" ** "_*")),
     sassOptions := Seq.empty[String],
     moduleName in sass := "sass",
+    sassPublicDir := (moduleName in sass).value,
 
     sass := {
       val targetDir = webTarget.value / (moduleName in sass).value / "main"
-
-//      val targetDir = webTarget.value / sourceFileTask.key.label / "main"
-
       def paths = sassEntryPoints.value.get
       paths.map(file => {
-        val z = resourceManaged.value
-        val x = targetDir
-        val c = target.value
-        val v = (public in Assets).value
-        val b = streams.value.cacheDirectory
-        println(resourceManaged.value)
         val fileName = (file.getName).replace(".sass", "").replace(".scss", "")
         val targetFileCss = targetDir / fileName.concat(".css")
         val targetFileCssMin = targetDir / fileName.concat(".min.css")
@@ -51,23 +44,26 @@ object SbtSass extends AutoPlugin {
         IO.write(targetFileCss, css)
         IO.write(targetFileCssMin, cssMin)
 
-        SbtWeb.copyResourceTo(
-          (public in Assets).value / (moduleName in sass).value,
+        val f = SbtWeb.copyResourceTo(
+          (public in Assets).value / sassPublicDir.value,
           targetFileCss.toURI().toURL(),
           streams.value.cacheDirectory / "copy-resource"
         )
 
         SbtWeb.copyResourceTo(
-          (public in Assets).value / (moduleName in sass).value,
+          (public in Assets).value / sassPublicDir.value,
           targetFileCssMin.toURI().toURL(),
           streams.value.cacheDirectory / "copy-resource"
         )
+        (public in Assets).value / sassPublicDir.value
 
         targetFileCss
       })
+      Seq(targetDir)
     },
     resourceGenerators <+= sass
   )
+
 
   override def projectSettings: Seq[Setting[_]] = inConfig(Assets)(baseSbtSassSettings)
 

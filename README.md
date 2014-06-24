@@ -1,7 +1,11 @@
 sbt-sass for play framework 2.3
 ========
-
 Plugin based on [play-sass][play-sass] for Play Framework 2.2.x 
+
+## ver 0.1.1 [24-06-2014]
+* Added output directory customization
+* Fix for windows using
+* Sass sources directory changed from `app/assets/*` to `app/public/*`
 
 # Prerequisites
 [Sass][sass] compiler needs to be installed for plugin to work. This means that `sass` executable
@@ -24,7 +28,7 @@ gem install compass
    ```
    resolvers += Resolver.url("GitHub repository", url("http://shaggyyeti.github.io/releases"))(Resolver.ivyStylePatterns)
 
-   addSbtPlugin("default" % "sbt-sass" % "0.1")
+   addSbtPlugin("default" % "sbt-sass" % "0.1.1")
    ```
 2. Run `activator`
 
@@ -42,8 +46,20 @@ gem install compass
 5. Run `activator`
 
 # Usage
-* `*.sass` and `*.scss` files in `app/assets/*` directories will be automatically compiled to `*.css` files.
+* `*.sass` and `*.scss` files in `app/public/*` directories will be automatically compiled to `*.css` files.
 * Files starting with `_`-character will be left out from compilation as per Play convention.
+* By default output directory is sass:
+  ```
+  <link rel="stylesheet" media="screen" href="@routes.Assets.at("sass/test.css")">
+  ```
+* If you want to set output directory = `css`, then add to `build.sbt` next line:
+  ```
+  sassPublicDir in Assets := "css" 
+  ```
+and include in templates:
+  ```
+  <link rel="stylesheet" media="screen" href="@routes.Assets.at("sass/test.css")">
+  ```
 
 Example of play-project: [example][example]
 
