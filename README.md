@@ -53,13 +53,13 @@ gem install compass
   <link rel="stylesheet" media="screen" href="@routes.Assets.at("sass/test.css")">
   ```
 * If you want to set output directory = `css`, then add to `build.sbt` next line:
-  ```
-  sassPublicDir in Assets := "css" 
-  ```
+```
+sassPublicDir in Assets := "css" 
+```
 and include in templates:
-  ```
-  <link rel="stylesheet" media="screen" href="@routes.Assets.at("sass/test.css")">
-  ```
+```
+<link rel="stylesheet" media="screen" href="@routes.Assets.at("sass/test.css")">
+```
 
 Example of play-project: [example][example]
 
