@@ -20,12 +20,11 @@ object SassCompiler {
       val parentPath = sassFile.getParentFile.getAbsolutePath
 
       val (cssOutput, dependencies) = runCompiler(
-        Seq(sassCommand, "-l", "-I", parentPath) ++ options ++ Seq(sassFile.getAbsolutePath)
+        sassCommand ++ Seq("-l", "-I", parentPath) ++ options ++ Seq(sassFile.getAbsolutePath)
       )
 
-
       val (compressedCssOutput, ignored) = runCompiler(
-        Seq(sassCommand, "-t", "compressed", "-I", parentPath) ++ options ++ Seq(sassFile.getAbsolutePath)
+        sassCommand ++ Seq("-t", "compressed", "-I", parentPath) ++ options ++ Seq(sassFile.getAbsolutePath)
       )
 
       (cssOutput, compressedCssOutput)
@@ -38,7 +37,7 @@ object SassCompiler {
   }
 
 
-  private def sassCommand = if (isWindows) "sass.bat" else "sass"
+  private def sassCommand = if (isWindows) Seq("cmd","/c","sass.bat") else Seq("sass")
 
   private val isWindows = System.getProperty("os.name").toLowerCase().indexOf("win") >= 0
 
