@@ -52,12 +52,12 @@ gem install compass
 5. Run `activator`
 
 # Usage
-* `*.sass` and `*.scss` files in `app/assets/*` directories will be automatically compiled to `*/*.css` files (for example: `app/assets/abc/def.scss` -> `@routes.Assets.at("abc/def.css")`)  
+* `*.sass` and `*.scss` files in `app/assets` directories will be automatically compiled to `*.css` files
 * Files starting with `_`-character will be left out from compilation as per Play convention.
-* For example for app/assets/test.scss file include line looks like:
-  ```
-  <link rel="stylesheet" media="screen" href="@routes.Assets.at("test.css")">
-  ```
+* For example the result of compilation of `app/assets/test.scss` you can include by next line:
+```
+<link rel="stylesheet" media="screen" href="@routes.Assets.at("test.css")">
+```
 
 Example of play-project in `play-sass-example` folder
 
