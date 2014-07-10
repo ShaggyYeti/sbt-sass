@@ -2,16 +2,17 @@ sbt-sass for play framework 2.3
 ========
 Plugin based on [play-sass][play-sass] for Play Framework 2.2.x 
 
+## ver 0.1.3 [11 jul 2014]
+* Fixes #5 added incremental compilation
+* added printing of informational message about compilation 
+* updated sbt-web 1.0.0 -> 1.0.2
+* added filename to exception message
+
 ## ver 0.1.2 [06 jul 2014]
 * Fixed #4 issue. Now scss/sass and resulting css files in jar is generated properly.  
 * Sass sources directory changed back to `app/assets/*` according to [play-2.3-anatomy]
 * Removed output directory customization parameter. Now it works automatically. (Read in `Usage` section)
 * Play example project moved to `play-sass-example` folder from external git-repo
-
-## ver 0.1.1 [24 jun 2014]
-* Added output directory customization
-* Fix for windows using
-* Sass sources directory changed from `app/assets/*` to `app/public/*`
 
 # Prerequisites
 [Sass][sass] compiler needs to be installed for plugin to work. This means that `sass` executable
@@ -34,7 +35,7 @@ gem install compass
    ```
    resolvers += Resolver.url("GitHub repository", url("http://shaggyyeti.github.io/releases"))(Resolver.ivyStylePatterns)
 
-   addSbtPlugin("default" % "sbt-sass" % "0.1.2")
+   addSbtPlugin("default" % "sbt-sass" % "0.1.3")
    ```
 2. Run `activator`
 
@@ -47,7 +48,7 @@ gem install compass
 3. In sbt-console execute command `publishLocal`
 4. Add line in your play project to project/plugins.sbt
    ```
-   addSbtPlugin("default" % "sbt-sass" % "0.1.2")
+   addSbtPlugin("default" % "sbt-sass" % "0.1.3")
    ```
 5. Run `activator`
 

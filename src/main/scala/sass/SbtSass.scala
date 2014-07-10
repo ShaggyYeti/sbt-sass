@@ -1,9 +1,10 @@
 package sass
 
-import com.typesafe.sbt.web.SbtWeb
+import com.typesafe.sbt.web.{incremental, SbtWeb}
 import sbt.Keys._
 import sbt._
-
+import com.typesafe.sbt.web.incremental._
+import com.typesafe.sbt.web.incremental.OpSuccess
 
 object Import {
   val sass = TaskKey[Seq[File]]("sass", "Generate css files from scss and sass")
@@ -29,35 +30,39 @@ object SbtSass extends AutoPlugin {
     managedResourceDirectories += (resourceManaged in sass).value,
 
     sass := {
-      def paths = sassEntryPoints.value pair relativeTo((sourceDirectory in Assets).value)
-      val cssFiles = paths.map {
-        case (file, path) => {
-          val fileName = path.replace(".sass", "").replace(".scss", "")
-          val targetFileCss = (resourceManaged in sass).value / fileName.concat(".css")
-          val targetFileCssMin = (resourceManaged in sass).value / fileName.concat(".min.css")
+      // (file, relative_path)
+      def files = sassEntryPoints.value pair relativeTo((sourceDirectory in Assets).value)
+      // (file -> relative_path
+      def fileMapToPath = files.foldLeft(Map.empty[java.io.File, String]) { (m, item) => m ++ Map(item)}
 
-          val (css, cssMin) = SassCompiler.compile(file, sassOptions.value)
+      val results = incremental.syncIncremental((streams in Assets).value.cacheDirectory / "run", sassEntryPoints.value.get) {
+        modifiedFiles: Seq[File] =>
+          if(modifiedFiles.size > 0) {streams.value.log.info(s"Sass compiling on ${modifiedFiles.size} source(s)")}
+          val compilationResults = modifiedFiles.map {
+            file => {
+              val fileName = fileMapToPath(file).replace(".sass", "").replace(".scss", "")
+              val targetFileCss = (resourceManaged in sass).value / fileName.concat(".css")
+              val targetFileCssMin = (resourceManaged in sass).value / fileName.concat(".min.css")
 
-          IO.write(targetFileCss, css)
-          IO.write(targetFileCssMin, cssMin)
+              val (css, cssMin, dependencies) = SassCompiler.compile(file, sassOptions.value)
 
-          (targetFileCss, targetFileCssMin)
-        }
+              IO.write(targetFileCss, css)
+              IO.write(targetFileCssMin, cssMin)
+//              val readFiles: Set[File] = (dependencies.map { new File(_) }).toSet + file
+              // files list for dependency watcher.
+              val readFiles: Set[File] = (((sourceDirectory in Assets).value ** "*.sass") +++ ((sourceDirectory in Assets).value ** "*.scss")).get.toSet
+              ((targetFileCss, targetFileCssMin), file, OpSuccess(readFiles, Set(targetFileCss, targetFileCssMin)))
+            }
+          }
+          val createdFiles = (compilationResults.map {_._1})
+            .foldLeft(Seq.empty[File]) { (files, pair) => files ++ Seq(pair._1, pair._2)}
+          val cachedForIncrementalCompilation = compilationResults.foldLeft(Map.empty[File, OpResult]) { (acc, e) => acc ++ Map((e._2, e._3))}
+          (cachedForIncrementalCompilation, createdFiles)
       }
-      seqOfTuple2Seq(cssFiles)
+      (results._1 ++ results._2.toSet).toSeq
     },
     resourceGenerators <+= sass
   )
-
-  /* converts Seq((a,b), (c,d), (e,f)) to Seq(a, b, c, d, e, f) */
-  private def seqOfTuple2Seq[T](list: Seq[Tuple2[T, T]]): Seq[T] = {
-    if (list != Nil) {
-      def current = list.head
-      Seq(current._1, current._2) ++ seqOfTuple2Seq(list.tail)
-    } else {
-      Nil
-    }
-  }
 
   override def projectSettings: Seq[Setting[_]] = inConfig(Assets)(baseSbtSassSettings)
 }

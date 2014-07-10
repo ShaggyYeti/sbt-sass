@@ -8,7 +8,7 @@ import sbt.IO
 import io.Source._
 
 object SassCompiler {
-  def compile(sassFile: File, opts: Seq[String]): (String, String) = {
+  def compile(sassFile: File, opts: Seq[String]): (String, String, Seq[String]) = {
     // Filter out rjs option added by AssetsCompiler until we get clarity on what would
     // be proper solution
     // See: https://groups.google.com/d/topic/play-framework/VbhJUfVl-xE/discussion
@@ -27,10 +27,10 @@ object SassCompiler {
         sassCommand ++ Seq("-t", "compressed", "-I", parentPath) ++ options ++ Seq(sassFile.getAbsolutePath)
       )
 
-      (cssOutput, compressedCssOutput)
+      (cssOutput, compressedCssOutput, dependencies)
     } catch {
       case e: SassCompilationException => {
-        throw new Exception("\nSass compiler: " + e.message +"\nline: " + e.line + " col: " + Some(e.column))
+        throw new Exception("\nSass compiler: " + e.message +"\nFile: " + e.file.get.getName + "\nLine: " + e.line + " Col: " + Some(e.column))
 //        throw AssetCompilationException(e.file.orElse(Some(sassFile)), "Sass compiler: " + e.message, Some(e.line), Some(e.column))
       }
     }
