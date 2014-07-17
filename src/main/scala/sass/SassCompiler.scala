@@ -6,6 +6,7 @@ import java.io.File
 import scala.sys.process._
 import sbt.IO
 import io.Source._
+import scala.Some
 
 object SassCompiler {
   def compile(sassFile: File, opts: Seq[String]): (String, String, Seq[String]) = {
@@ -36,8 +37,22 @@ object SassCompiler {
     }
   }
 
+  private def getSassPathInLinux: String = {
 
-  private def sassCommand = if (isWindows) Seq("cmd","/c","sass.bat") else Seq("sass")
+    val out = new StringBuilder
+
+    val capturer = ProcessLogger(
+      (output: String) => out.append(output),
+      (error: String) => ()
+    )
+
+    def command = Seq("which", "sass") ! (capturer)
+    if(command == 0) out.toString()
+    else throw new Exception("'sass' command not found. Try to add path to 'sass' to your $PATH system variable")
+  }
+
+
+  private def sassCommand = if (isWindows) Seq("cmd","/c","sass.bat") else Seq(getSassPathInLinux)
 
   private val isWindows = System.getProperty("os.name").toLowerCase().indexOf("win") >= 0
 
