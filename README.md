@@ -71,7 +71,7 @@ sassOptions in Assets ++= Seq("--compass", "-r", "compass")
 ## Troubles and solutions
 * Cannot run program "sass": error=2, No such file or directory
   * *In linux:* you should add path to sass command to environment variable $PATH
-  * *Running from IntelliJ IDEA:* your IDE doesn't read environment variables, you should set PATH to sass in IDE settings. Solutions and documentation: [issue #6][issue6], [Idea HelpL path variables][idea-env-vars]
+  * *Running from IntelliJ IDEA:* your IDE doesn't read environment variables, you should set PATH to sass in IDE settings. Solutions and documentation: [issue #6][issue6], [Idea Help: path variables][idea-env-vars]
 
 
 [play-sass]: https://github.com/jlitola/play-sass
