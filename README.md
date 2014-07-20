@@ -67,7 +67,16 @@ If u want to use [compass][compass] just add next line in `build.sbt`:
 ```
 sassOptions in Assets ++= Seq("--compass", "-r", "compass")
 ```
+
+## Troubles and solutions
+* Cannot run program "sass": error=2, No such file or directory
+  * *In linux:* you should add path to sass command to environment variable $PATH
+  * *Running from IntelliJ IDEA:* your IDE doesn't read environment variables, you should set PATH to sass in IDE settings. Solutions and documentation: [issue #6][issue6], [Idea HelpL path variables][idea-env-vars]
+
+
 [play-sass]: https://github.com/jlitola/play-sass
 [sass]: http://sass-lang.com/
 [compass]: http://compass-style.org/
 [play-2.3-anatomy]: http://www.playframework.com/documentation/2.3.x/Anatomy
+[issue6]: https://github.com/ShaggyYeti/sbt-sass/issues/6#issuecomment-49294238
+[idea-env-vars]: http://www.jetbrains.com/idea/webhelp/path-variables-2.html
