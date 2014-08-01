@@ -25,11 +25,12 @@ object SbtSass extends AutoPlugin {
 
   val baseSbtSassSettings = Seq(
     sassEntryPoints <<= (sourceDirectory in Assets)(srcPath => ((srcPath ** "*.sass") +++ (srcPath ** "*.scss") --- srcPath ** "_*")),
-    sassOptions := Seq.empty[String],
+//    sassOptions := Seq.empty[String],
+    sassOptions := (webModuleDirectories in Assets).value.getPaths.foldLeft(Seq.empty[String]){ (acc, str) => acc ++ Seq("-I", str)},
     resourceManaged in sass in Assets := (webTarget in Assets).value / "sass" / "main",
     managedResourceDirectories += (resourceManaged in sass).value,
 
-    sass := {
+    sass := Def.task {
       // (file, relative_path)
       def files = sassEntryPoints.value pair relativeTo((sourceDirectory in Assets).value)
       // (file -> relative_path
@@ -57,7 +58,7 @@ object SbtSass extends AutoPlugin {
           (cachedForIncrementalCompilation, createdFiles)
       }
       (results._1 ++ results._2.toSet).toSeq
-    },
+    }.dependsOn(WebKeys.webJars in Assets).value,
     resourceGenerators <+= sass
   )
 

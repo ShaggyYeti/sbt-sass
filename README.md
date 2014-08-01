@@ -2,21 +2,12 @@ sbt-sass for Play Framework 2.3.x
 ========
 Plugin based on [play-sass][play-sass] for Play Framework 2.2.x 
 
+## ver 0.1.5 [02 aug 2014]
+* Fixes #9 : added WebJars integration
+
 ## ver 0.1.4 [01 aug 2014]
 * Fixes #8 : fixed incremental compilation issues (now dependencies compilation works)
 * Improved sass command execution in Linux
-
-## ver 0.1.3 [11 jul 2014]
-* Fixes #5 added incremental compilation
-* added printing of informational message about compilation 
-* updated sbt-web 1.0.0 -> 1.0.2
-* added filename to exception message
-
-## ver 0.1.2 [06 jul 2014]
-* Fixed #4 issue. Now scss/sass and resulting css files in jar is generated properly.  
-* Sass sources directory changed back to `app/assets/*` according to [play-2.3-anatomy]
-* Removed output directory customization parameter. Now it works automatically. (Read in `Usage` section)
-* Play example project moved to `play-sass-example` folder from external git-repo
 
 # Prerequisites
 [Sass][sass] compiler needs to be installed for plugin to work. This means that `sass` executable
@@ -39,7 +30,7 @@ gem install compass
    ```
    resolvers += Resolver.url("GitHub repository", url("http://shaggyyeti.github.io/releases"))(Resolver.ivyStylePatterns)
 
-   addSbtPlugin("default" % "sbt-sass" % "0.1.3")
+   addSbtPlugin("default" % "sbt-sass" % "0.1.5")
    ```
 2. Run `activator`
 
@@ -52,7 +43,7 @@ gem install compass
 3. In sbt-console execute command `publishLocal`
 4. Add line in your play project to project/plugins.sbt
    ```
-   addSbtPlugin("default" % "sbt-sass" % "0.1.3")
+   addSbtPlugin("default" % "sbt-sass" % "0.1.5")
    ```
 5. Run `activator`
 
@@ -63,6 +54,19 @@ gem install compass
 ```
 <link rel="stylesheet" media="screen" href="@routes.Assets.at("test.css")">
 ```
+* also, you can use `sbt-sass` with `WebJars`. For example, webjar of Foundation:
+  * add next line to `build.sbt`
+   ```
+   libraryDependencies ++= Seq(
+     "org.webjars" %% "webjars-play" % "2.3.0",
+     "org.webjars" % "foundation" % "5.3.0"
+    )
+   ```
+  * then you can include in scss-file:
+   ```
+   @import "lib/foundation/scss/foundation";
+   ```
+
 
 Example of play-project in `play-sass-example` folder
 
