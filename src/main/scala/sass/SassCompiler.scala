@@ -31,7 +31,7 @@ object SassCompiler {
       (cssOutput, compressedCssOutput, dependencies)
     } catch {
       case e: SassCompilationException => {
-        throw new Exception("\nSass compiler: " + e.message +"\nFile: " + e.file.get.getName + "\nLine: " + e.line + " Col: " + Some(e.column))
+        throw new Exception("\nSass compiler: " + e.message +"\nFile: " + e.file.orElse(Some(sassFile)).get.getName() + "\nLine: " + e.line + " Col: " + Some(e.column))
 //        throw AssetCompilationException(e.file.orElse(Some(sassFile)), "Sass compiler: " + e.message, Some(e.line), Some(e.column))
       }
     }
