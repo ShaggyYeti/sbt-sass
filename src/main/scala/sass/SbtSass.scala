@@ -34,7 +34,6 @@ object SbtSass extends AutoPlugin {
       def files = sassEntryPoints.value pair relativeTo((sourceDirectory in Assets).value)
       // (file -> relative_path
       def fileMapToPath = files.foldLeft(Map.empty[java.io.File, String]) { (m, item) => m ++ Map(item)}
-
       val results = incremental.syncIncremental((streams in Assets).value.cacheDirectory / "run", sassEntryPoints.value.get) {
         modifiedFiles: Seq[File] =>
           if(modifiedFiles.size > 0) {streams.value.log.info(s"Sass compiling on ${modifiedFiles.size} source(s)")}
@@ -48,9 +47,7 @@ object SbtSass extends AutoPlugin {
 
               IO.write(targetFileCss, css)
               IO.write(targetFileCssMin, cssMin)
-//              val readFiles: Set[File] = (dependencies.map { new File(_) }).toSet + file
-              // files list for dependency watcher.
-              val readFiles: Set[File] = (((sourceDirectory in Assets).value ** "*.sass") +++ ((sourceDirectory in Assets).value ** "*.scss")).get.toSet
+              val readFiles: Set[File] = (dependencies.map { new File(_) }).toSet + file
               ((targetFileCss, targetFileCssMin), file, OpSuccess(readFiles, Set(targetFileCss, targetFileCssMin)))
             }
           }

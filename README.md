@@ -1,6 +1,10 @@
-sbt-sass for play framework 2.3
+sbt-sass for Play Framework 2.3.x
 ========
 Plugin based on [play-sass][play-sass] for Play Framework 2.2.x 
+
+## ver 0.1.4 [01 aug 2014]
+* Fixes #8 : fixed incremental compilation issues (now dependencies compilation works)
+* Improved sass command execution in Linux
 
 ## ver 0.1.3 [11 jul 2014]
 * Fixes #5 added incremental compilation
