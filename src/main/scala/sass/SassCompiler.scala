@@ -9,7 +9,7 @@ import io.Source._
 import scala.Some
 
 object SassCompiler {
-  def compile(sassFile: File, opts: Seq[String]): (String, String, Seq[String]) = {
+  def compile(sassFile: File, outfile: File, outfileMin: File, opts: Seq[String]): Seq[String] = {
     // Filter out rjs option added by AssetsCompiler until we get clarity on what would
     // be proper solution
     // See: https://groups.google.com/d/topic/play-framework/VbhJUfVl-xE/discussion
@@ -20,15 +20,20 @@ object SassCompiler {
     try {
       val parentPath = sassFile.getParentFile.getAbsolutePath
 
-      val (cssOutput, dependencies) = runCompiler(
-        sassCommand ++ Seq("-l", "-I", parentPath) ++ options ++ Seq(sassFile.getAbsolutePath)
+      // FIXME: Generating sourcemaps means we can't just
+      // read the result from stdout. If we want to return file content
+      // (as strings) we need to read the files from disk.
+
+      val (_, dependencies) = runCompiler(
+        sassCommand ++ Seq("-l", "-I", parentPath) ++ options ++ Seq(Seq(sassFile.getAbsolutePath,  ":",   outfile.getAbsolutePath).mkString, "--sourcemap")
       )
 
-      val (compressedCssOutput, ignored) = runCompiler(
-        sassCommand ++ Seq("-t", "compressed", "-I", parentPath) ++ options ++ Seq(sassFile.getAbsolutePath)
+      runCompiler(
+        sassCommand ++ Seq("-t", "compressed", "-I", parentPath) ++ options ++ Seq(Seq(sassFile.getAbsolutePath,  ":",   outfileMin.getAbsolutePath).mkString, "--sourcemap")
       )
 
-      (cssOutput, compressedCssOutput, dependencies)
+      dependencies
+
     } catch {
       case e: SassCompilationException => {
         throw new Exception("\nSass compiler: " + e.message +"\nFile: " + e.file.orElse(Some(sassFile)).get.getName() + "\nLine: " + e.line + " Col: " + Some(e.column))

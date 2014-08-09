@@ -42,14 +42,23 @@ object SbtSass extends AutoPlugin {
             file => {
               val fileName = fileMapToPath(file).replace(".sass", "").replace(".scss", "")
               val targetFileCss = (resourceManaged in sass).value / fileName.concat(".css")
+              val targetFileCssSourcemap = (resourceManaged in sass).value / fileName.concat(".css.map")
               val targetFileCssMin = (resourceManaged in sass).value / fileName.concat(".min.css")
+              val targetFileCssMinSourcemap = (resourceManaged in sass).value / fileName.concat(".min.css.map")
 
-              val (css, cssMin, dependencies) = SassCompiler.compile(file, sassOptions.value)
+              val dependencies = SassCompiler.compile(file, targetFileCss, targetFileCssMin, sassOptions.value)
 
-              IO.write(targetFileCss, css)
-              IO.write(targetFileCssMin, cssMin)
               val readFiles: Set[File] = (dependencies.map { new File(_) }).toSet + file
-              ((targetFileCss, targetFileCssMin), file, OpSuccess(readFiles, Set(targetFileCss, targetFileCssMin)))
+              ((targetFileCss,
+                targetFileCssMin,
+                targetFileCssSourcemap,
+                targetFileCssMinSourcemap),
+                file,
+                OpSuccess(readFiles, Set(
+                  targetFileCss,
+                  targetFileCssMin,
+                  targetFileCssSourcemap,
+                  targetFileCssMinSourcemap)))
             }
           }
           val createdFiles = (compilationResults.map {_._1})
