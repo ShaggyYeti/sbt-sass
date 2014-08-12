@@ -20,10 +20,6 @@ object SassCompiler {
     try {
       val parentPath = sassFile.getParentFile.getAbsolutePath
 
-      // FIXME: Generating sourcemaps means we can't just
-      // read the result from stdout. If we want to return file content
-      // (as strings) we need to read the files from disk.
-
       val (_, dependencies) = runCompiler(
         sassCommand ++ Seq("-l", "-I", parentPath) ++ options ++ Seq(Seq(sassFile.getAbsolutePath,  ":",   outfile.getAbsolutePath).mkString, "--sourcemap")
       )
