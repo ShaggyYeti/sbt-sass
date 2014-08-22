@@ -1,19 +1,19 @@
 sbt-sass for Play Framework 2.3.x
 ========
-Plugin based on [play-sass][play-sass] for Play Framework 2.2.x 
+Plugin based on [play-sass][play-sass] 
+
+## ver 0.1.6 [23 aug 2014]
+* Added support of sourcemaps generation, thanks to [@onelson][onelson]
+* `--sourcemaps` parameter has hardcoded . It is absent in `sass` versions before `3.3`.  
 
 ## ver 0.1.5 [02 aug 2014]
 * Fixes #9 : added WebJars integration
 
-## ver 0.1.4 [01 aug 2014]
-* Fixes #8 : fixed incremental compilation issues (now dependencies compilation works)
-* Improved sass command execution in Linux
-
 # Prerequisites
 [Sass][sass] compiler needs to be installed for plugin to work. This means that `sass` executable
-needs to be found in path. Sass can be installed by by installing `sass` gem (version 3.2.19 is required by compass).
+needs to be found in path. Sass can be installed by installing `sass` gem (**minimal version 3.3**).
 ```
-gem install sass -v 3.2.19 
+gem install sass -v 3.4.0 
 ```
 You can verify that `sass` has been installed by following command:
 ```
@@ -30,7 +30,7 @@ gem install compass
    ```
    resolvers += Resolver.url("GitHub repository", url("http://shaggyyeti.github.io/releases"))(Resolver.ivyStylePatterns)
 
-   addSbtPlugin("default" % "sbt-sass" % "0.1.5")
+   addSbtPlugin("default" % "sbt-sass" % "0.1.6")
    ```
 2. Run `activator`
 
@@ -43,7 +43,7 @@ gem install compass
 3. In sbt-console execute command `publishLocal`
 4. Add line in your play project to project/plugins.sbt
    ```
-   addSbtPlugin("default" % "sbt-sass" % "0.1.5")
+   addSbtPlugin("default" % "sbt-sass" % "0.1.6")
    ```
 5. Run `activator`
 
@@ -88,3 +88,4 @@ sassOptions in Assets ++= Seq("--compass", "-r", "compass")
 [play-2.3-anatomy]: http://www.playframework.com/documentation/2.3.x/Anatomy
 [issue6]: https://github.com/ShaggyYeti/sbt-sass/issues/6#issuecomment-49294238
 [idea-env-vars]: http://www.jetbrains.com/idea/webhelp/path-variables-2.html
+[onelson]: https://github.com/onelson

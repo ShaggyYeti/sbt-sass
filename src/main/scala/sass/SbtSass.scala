@@ -25,7 +25,7 @@ object SbtSass extends AutoPlugin {
 
   val baseSbtSassSettings = Seq(
     sassEntryPoints <<= (sourceDirectory in Assets)(srcPath => ((srcPath ** "*.sass") +++ (srcPath ** "*.scss") --- srcPath ** "_*")),
-//    sassOptions := Seq.empty[String],
+    // include webjar folders
     sassOptions := (webModuleDirectories in Assets).value.getPaths.foldLeft(Seq.empty[String]){ (acc, str) => acc ++ Seq("-I", str)},
     resourceManaged in sass in Assets := (webTarget in Assets).value / "sass" / "main",
     managedResourceDirectories += (resourceManaged in sass).value,
@@ -46,6 +46,10 @@ object SbtSass extends AutoPlugin {
               val targetFileCssMin = (resourceManaged in sass).value / fileName.concat(".min.css")
               val targetFileCssMinSourcemap = (resourceManaged in sass).value / fileName.concat(".min.css.map")
 
+              // prepares folders for results of sass compiler
+              targetFileCss.getParentFile().mkdirs()
+
+              // sass compiles and creates files
               val dependencies = SassCompiler.compile(file, targetFileCss, targetFileCssMin, sassOptions.value)
 
               val readFiles: Set[File] = (dependencies.map { new File(_) }).toSet + file
@@ -62,8 +66,8 @@ object SbtSass extends AutoPlugin {
             }
           }
           val createdFiles = (compilationResults.map {_._1})
-            .foldLeft(Seq.empty[File]) { (files, pair) => files ++ Seq(pair._1, pair._2)}
-          val cachedForIncrementalCompilation = compilationResults.foldLeft(Map.empty[File, OpResult]) { (acc, e) => acc ++ Map((e._2, e._3))}
+            .foldLeft(Seq.empty[File]) { (createdFilesList, targetFiles) => createdFilesList ++ Seq(targetFiles._1, targetFiles._2)}
+          val cachedForIncrementalCompilation = compilationResults.foldLeft(Map.empty[File, OpResult]) { (acc, sourceAndResultFiles) => acc ++ Map((sourceAndResultFiles._2, sourceAndResultFiles._3))}
           (cachedForIncrementalCompilation, createdFiles)
       }
       (results._1 ++ results._2.toSet).toSeq
