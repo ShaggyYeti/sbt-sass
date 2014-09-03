@@ -80,6 +80,9 @@ sassOptions in Assets ++= Seq("--compass", "-r", "compass")
 * Cannot run program "sass": error=2, No such file or directory
   * *In linux:* you should add path to sass command to environment variable $PATH
   * *Running from IntelliJ IDEA:* your IDE doesn't read environment variables, you should set PATH to sass in IDE settings. Solutions and documentation: [issue #6][issue6], [Idea Help: path variables][idea-env-vars]
+* /var/lib/gems/1.9.1/gems/sass-3.4.2/lib/sass/util.rb:670:in `realpath': No such file or directory
+  * `ruby 1.9.1` + `sass 3.4.2` may throw this error. *Solution*: uninstall sass and install sass 3.4.0
+
 
 
 [play-sass]: https://github.com/jlitola/play-sass
