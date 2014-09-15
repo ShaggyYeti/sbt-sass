@@ -2,7 +2,7 @@ name := """play-sass-example"""
 
 version := "1.0-SNAPSHOT"
 
-sassOptions in Assets ++= Seq("--compass", "-r", "compass")
+//sassOptions in Assets ++= Seq("--compass", "-r", "compass")
 
 lazy val root = (project in file(".")).enablePlugins(PlayJava)
 
