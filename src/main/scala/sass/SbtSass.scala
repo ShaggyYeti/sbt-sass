@@ -8,7 +8,6 @@ import com.typesafe.sbt.web.incremental.OpSuccess
 
 object Import {
   val sass = TaskKey[Seq[File]]("sass", "Generate css files from scss and sass")
-  val sassEntryPoints = SettingKey[PathFinder]("Finder for sass and scss files")
   val sassOptions = SettingKey[Seq[String]]("sassOptions", "Additional sass options")
 }
 
@@ -24,55 +23,63 @@ object SbtSass extends AutoPlugin {
   import autoImport._
 
   val baseSbtSassSettings = Seq(
-    sassEntryPoints <<= (sourceDirectory in Assets)(srcPath => ((srcPath ** "*.sass") +++ (srcPath ** "*.scss") --- srcPath ** "_*")),
-    // include webjar folders
-    sassOptions := (webModuleDirectories in Assets).value.getPaths.foldLeft(Seq.empty[String]){ (acc, str) => acc ++ Seq("-I", str)},
-    resourceManaged in sass in Assets := (webTarget in Assets).value / "sass" / "main",
-    managedResourceDirectories += (resourceManaged in sass).value,
+    excludeFilter in sass := HiddenFileFilter || "_*",
+    includeFilter in sass := "*.sass" || "*.scss",
 
-    sass := Def.task {
-      // (file, relative_path)
-      def files = sassEntryPoints.value pair relativeTo((sourceDirectory in Assets).value)
-      // (file -> relative_path
-      def fileMapToPath = files.foldLeft(Map.empty[java.io.File, String]) { (m, item) => m ++ Map(item)}
-      val results = incremental.syncIncremental((streams in Assets).value.cacheDirectory / "run", sassEntryPoints.value.get) {
-        modifiedFiles: Seq[File] =>
-          if(modifiedFiles.size > 0) {streams.value.log.info(s"Sass compiling on ${modifiedFiles.size} source(s)")}
-          val compilationResults = modifiedFiles.map {
-            file => {
-              val fileName = fileMapToPath(file).replace(".sass", "").replace(".scss", "")
-              val targetFileCss = (resourceManaged in sass).value / fileName.concat(".css")
-              val targetFileCssSourcemap = (resourceManaged in sass).value / fileName.concat(".css.map")
-              val targetFileCssMin = (resourceManaged in sass).value / fileName.concat(".min.css")
-              val targetFileCssMinSourcemap = (resourceManaged in sass).value / fileName.concat(".min.css.map")
+    managedResourceDirectories += (resourceManaged in sass in Assets).value,
+    resourceManaged in sass in Assets := webTarget.value / "sass" / "main",
+    resourceGenerators in Assets <+= sass in Assets,
 
-              // prepares folders for results of sass compiler
-              targetFileCss.getParentFile().mkdirs()
+    sass in Assets := Def.task {
+      val sourceDir = (sourceDirectory in Assets).value
+      val targetDir = (resourceManaged in sass in Assets).value
+      val sources = (sourceDir ** ((includeFilter in sass in Assets).value -- (excludeFilter in sass in Assets).value)).get
 
-              // sass compiles and creates files
-              val dependencies = SassCompiler.compile(file, targetFileCss, targetFileCssMin, sassOptions.value)
+      val results = incremental.syncIncremental((streams in Assets).value.cacheDirectory / "run", sources) {
+        modifiedSources: Seq[File] =>
+          if (modifiedSources.size > 0) 
+            streams.value.log.info(s"Sass compiling on ${modifiedSources.size} source(s)")
+            
+          val compilationResults = modifiedSources map { source => {
+            val sourceName = source.getPath.drop(sourceDir.getPath.size).reverse.dropWhile(_ != '.').reverse
+            def sourceWithExtn(extn: String): File = targetDir / (sourceName + extn)
+            val targetFileCss = sourceWithExtn("css")
+            val targetFileCssMap = sourceWithExtn("css.map")
+            val targetFileCssMin = sourceWithExtn("min.css")
+            val targetFileCssMinMap = sourceWithExtn("min.css.map")
 
-              val readFiles: Set[File] = (dependencies.map { new File(_) }).toSet + file
-              ((targetFileCss,
+            // prepares folders for results of sass compiler
+            targetFileCss.getParentFile.mkdirs()
+
+            // sass compiles and creates files
+            val dependencies = SassCompiler.compile(source, targetFileCss, targetFileCssMin, sassOptions.value)
+
+            val readFiles = (dependencies.map (file)).toSet + source
+            ((targetFileCss,
+              targetFileCssMin,
+              targetFileCssMap,
+              targetFileCssMinMap),
+              source,
+              OpSuccess(readFiles, Set(
+                targetFileCss,
                 targetFileCssMin,
-                targetFileCssSourcemap,
-                targetFileCssMinSourcemap),
-                file,
-                OpSuccess(readFiles, Set(
-                  targetFileCss,
-                  targetFileCssMin,
-                  targetFileCssSourcemap,
-                  targetFileCssMinSourcemap)))
+                targetFileCssMap,
+                targetFileCssMinMap)))
             }
           }
-          val createdFiles = (compilationResults.map {_._1})
-            .foldLeft(Seq.empty[File]) { (createdFilesList, targetFiles) => createdFilesList ++ Seq(targetFiles._1, targetFiles._2)}
-          val cachedForIncrementalCompilation = compilationResults.foldLeft(Map.empty[File, OpResult]) { (acc, sourceAndResultFiles) => acc ++ Map((sourceAndResultFiles._2, sourceAndResultFiles._3))}
+          val createdFiles = (compilationResults map (_._1)).foldLeft(Seq.empty[File]) { (createdFilesList, targetFiles) => 
+            createdFilesList ++ Seq(targetFiles._1, targetFiles._2)
+          }
+          val cachedForIncrementalCompilation = compilationResults.foldLeft(Map.empty[File, OpResult]) { (acc, sourceAndResultFiles) => 
+            acc ++ Map((sourceAndResultFiles._2, sourceAndResultFiles._3))
+          }
           (cachedForIncrementalCompilation, createdFiles)
       }
+      println(s"${results._2.toSet}")
       (results._1 ++ results._2.toSet).toSeq
-    }.dependsOn(WebKeys.webJars in Assets).value,
-    resourceGenerators <+= sass
+    }.dependsOn(WebKeys.webModules in Assets).value,
+    
+    sassOptions in Assets := (webModuleDirectories in Assets).value.getPaths.foldLeft(Seq.empty[String]){ (acc, str) => acc ++ Seq("-I", str) }
   )
 
   override def projectSettings: Seq[Setting[_]] = inConfig(Assets)(baseSbtSassSettings)
