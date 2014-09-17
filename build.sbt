@@ -2,7 +2,7 @@ sbtPlugin := true
 
 name := "sbt-sass"
 
-version := "0.1.6"
+version := "0.1.7"
 
 scalaVersion := "2.10.4"
 
@@ -12,4 +12,3 @@ resolvers ++= Seq(
 )
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.0.2")
-
