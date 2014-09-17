@@ -21,11 +21,11 @@ object SassCompiler {
       val parentPath = sassFile.getParentFile.getAbsolutePath
 
       val (_, dependencies) = runCompiler(
-        sassCommand ++ Seq("-l", "-I", parentPath) ++ options ++ Seq(Seq(sassFile.getAbsolutePath,  ":",   outfile.getAbsolutePath).mkString, "--sourcemap")
+        sassCommand ++ Seq("-l", "-I", parentPath) ++ options ++ Seq(Seq(sassFile.getAbsolutePath,  ":",   outfile.getAbsolutePath).mkString)
       )
 
       runCompiler(
-        sassCommand ++ Seq("-t", "compressed", "-I", parentPath) ++ options ++ Seq(Seq(sassFile.getAbsolutePath,  ":",   outfileMin.getAbsolutePath).mkString, "--sourcemap")
+        sassCommand ++ Seq("-t", "compressed", "-I", parentPath) ++ options ++ Seq(Seq(sassFile.getAbsolutePath,  ":",   outfileMin.getAbsolutePath).mkString)
       )
 
       dependencies
