@@ -21,7 +21,7 @@ You can verify that `sass` has been installed by following command:
 ```
 sass -v
 ```
-Also you should install (optional) compass if you want to use it
+Also you should install (opitonal) compass if you want to use it
 ```
 gem install compass
 ```
@@ -68,7 +68,11 @@ gem install compass
    ```
    @import "lib/foundation/scss/foundation";
    ```
-
+* Use sass-globbing pluging, If you want to import whole directory in sass
+  * Install plugin `gem install sass-globbing`
+  * Add line to *build.sbt*: `sassOptions in Assets ++= Seq("-r", "sass-globbing")`
+  * Now you can import a tons of files `@import "styles/*";` or folders `@import "styles/**/*";`
+  * Plugin url: https://github.com/chriseppstein/sass-globbing
 
 Example of play-project in `play-sass-example` folder
 
