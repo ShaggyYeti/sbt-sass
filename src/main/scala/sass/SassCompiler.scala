@@ -4,23 +4,16 @@ package sass
 
 import java.io.File
 import scala.sys.process._
-import sbt.IO
-import io.Source._
 import scala.Some
+import scala.io.Source
 
 object SassCompiler {
   def compile(sassFile: File, outfile: File, outfileMin: File, opts: Seq[String]): Seq[String] = {
-    // Filter out rjs option added by AssetsCompiler until we get clarity on what would
-    // be proper solution
-    // See: https://groups.google.com/d/topic/play-framework/VbhJUfVl-xE/discussion
     val options = opts
-//      .filter {
-//      _ != "rjs"
-//    }
     try {
       val parentPath = sassFile.getParentFile.getAbsolutePath
 
-      val (_, dependencies) = runCompiler(
+      runCompiler(
         sassCommand ++ Seq("-l", "-I", parentPath) ++ options ++ Seq(Seq(sassFile.getAbsolutePath,  ":",   outfile.getAbsolutePath).mkString)
       )
 
@@ -28,11 +21,12 @@ object SassCompiler {
         sassCommand ++ Seq("-t", "compressed", "-I", parentPath) ++ options ++ Seq(Seq(sassFile.getAbsolutePath,  ":",   outfileMin.getAbsolutePath).mkString)
       )
 
-      dependencies
+      // searching for imported dependencies
+      getDependencies(outfile)
 
     } catch {
       case e: SassCompilationException => {
-        throw new Exception("\nSass compiler: " + e.message +"\nFile: " + e.file.orElse(Some(sassFile)).get.getName() + "\nLine: " + e.line + " Col: " + Some(e.column))
+        throw new Exception("\nSass compiler: " + e.message +"\nFile: " + (e.file.orElse(Some(sassFile))).get.getCanonicalPath + "\nLine: " + e.line + " Col: " + Some(e.column).get)
 //        throw AssetCompilationException(e.file.orElse(Some(sassFile)), "Sass compiler: " + e.message, Some(e.line), Some(e.column))
       }
     }
@@ -52,6 +46,12 @@ object SassCompiler {
     else throw new Exception("'sass' command not found. Try to add path to 'sass' to your $PATH system variable")
   }
 
+  private def getDependencies = { (cssFile: File) =>
+    def result = Source.fromFile(cssFile).getLines().collect {
+      case DependencyLine(f) => f
+    }
+    result.toList.distinct
+  }
 
   private def sassCommand = if (isWindows) Seq("cmd","/c","sass.bat") else Seq(getSassPathInLinux)
 
@@ -59,7 +59,7 @@ object SassCompiler {
 
   private val DependencyLine = """^/\* line \d+, (.*) \*/$""".r
 
-  private def runCompiler(command: ProcessBuilder): (String, Seq[String]) = {
+  private def runCompiler(command: ProcessBuilder) = {
     val err = new StringBuilder
     val out = new StringBuilder
 
@@ -68,12 +68,7 @@ object SassCompiler {
       (error: String) => err.append(error + "\n"))
 
     val process = command.run(capturer)
-    if (process.exitValue == 0) {
-      val dependencies = out.lines.collect {
-        case DependencyLine(f) => f
-      }
-      (out.mkString, dependencies.toList.distinct)
-    } else {
+    if (process.exitValue != 0) {
       throw new SassCompilationException(err.toString)
     }
   }

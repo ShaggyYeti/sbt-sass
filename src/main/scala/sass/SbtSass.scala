@@ -51,10 +51,14 @@ object SbtSass extends AutoPlugin {
             // prepares folders for results of sass compiler
             targetFileCss.getParentFile.mkdirs()
 
-            // sass compiles and creates files
+            // function compiles, creates files and returns imported css-dependencies
             val dependencies = SassCompiler.compile(source, targetFileCss, targetFileCssMin, sassOptions.value)
 
-            val readFiles = (dependencies.map (file)).toSet + source
+            // converting dependencies path from ../../../../file.sass to /normal/absolute/path/to/file.sass
+            val readFiles = (dependencies.map { (path)=>
+              val q = baseDirectory.value + file(path).toPath.toAbsolutePath.normalize().toString
+              file(q)
+             }).toSet + source
             ((targetFileCss,
               targetFileCssMin,
               targetFileCssMap,
@@ -75,7 +79,10 @@ object SbtSass extends AutoPlugin {
           }
           (cachedForIncrementalCompilation, createdFiles)
       }
-      println(s"${results._2.toSet}")
+      if(results._2.length > 0){
+        streams.value.log.info(s"Sass compilation results: ${results._2.toSet.mkString(", ")}")
+      }
+
       (results._1 ++ results._2.toSet).toSeq
     }.dependsOn(WebKeys.webModules in Assets).value,
     

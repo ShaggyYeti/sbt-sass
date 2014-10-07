@@ -1,15 +1,16 @@
-sbt-sass for Play Framework 2.3.x
+sbt-sass plugin for sbt(probably, didn't test) and Play Framework 2.3.x
 ========
 Plugin based on [play-sass][play-sass] 
+
+## ver 0.1.8 [08 oct 2014]
+* fixed #14 issue with broken incremental compilation
+* exception message shows full path to file
+* changed compilation log message
 
 ## ver 0.1.7 [17 sep 2014]
 * added `sbt-digest` and `sbt-rjs` plugins to` play-sass-example`
 * fixed #12. removed `--sourcemap` parameter from sass command line. it prevents deprecation warning. 
 * fixed #11. fixed problems with assets pipeline. many thanks to [@huntc][huntc]  
-
-## ver 0.1.6 [23 aug 2014]
-* Added support of sourcemaps generation, thanks to [@onelson][onelson]
-* `--sourcemaps` parameter has hardcoded . It is absent in `sass` versions before `3.3`.  
 
 # Prerequisites
 [Sass][sass] compiler needs to be installed for plugin to work. This means that `sass` executable
@@ -32,7 +33,7 @@ gem install compass
    ```
    resolvers += Resolver.url("GitHub repository", url("http://shaggyyeti.github.io/releases"))(Resolver.ivyStylePatterns)
 
-   addSbtPlugin("default" % "sbt-sass" % "0.1.7")
+   addSbtPlugin("default" % "sbt-sass" % "0.1.8")
    ```
 2. Run `activator`
 
@@ -45,7 +46,7 @@ gem install compass
 3. In sbt-console execute command `publishLocal`
 4. Add line in your play project to project/plugins.sbt
    ```
-   addSbtPlugin("default" % "sbt-sass" % "0.1.7")
+   addSbtPlugin("default" % "sbt-sass" % "0.1.8")
    ```
 5. Run `activator`
 
