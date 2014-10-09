@@ -56,8 +56,10 @@ object SbtSass extends AutoPlugin {
 
             // converting dependencies path from ../../../../file.sass to /normal/absolute/path/to/file.sass
             val readFiles = (dependencies.map { (path)=>
-              val q = baseDirectory.value + file(path).toPath.toAbsolutePath.normalize().toString
-              file(q)
+              val formattedPath = baseDirectory.value +
+                java.io.File.separator +
+                file(path.replaceAll("""(\.\.\/|\.\.\\)""","")).toPath().normalize().toString
+              file(formattedPath)
              }).toSet + source
             ((targetFileCss,
               targetFileCssMin,

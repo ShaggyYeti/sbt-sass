@@ -2,6 +2,9 @@ sbt-sass plugin for sbt(probably, didn't test) and Play Framework 2.3.x
 ========
 Plugin based on [play-sass][play-sass] 
 
+## ver 0.1.9 [09 oct 2014]
+* fixed incremental compilation issue in Windows
+
 ## ver 0.1.8 [08 oct 2014]
 * fixed #14 issue with broken incremental compilation
 * exception message shows full path to file
@@ -33,7 +36,7 @@ gem install compass
    ```
    resolvers += Resolver.url("GitHub repository", url("http://shaggyyeti.github.io/releases"))(Resolver.ivyStylePatterns)
 
-   addSbtPlugin("default" % "sbt-sass" % "0.1.8")
+   addSbtPlugin("default" % "sbt-sass" % "0.1.9")
    ```
 2. Run `activator`
 
@@ -46,7 +49,7 @@ gem install compass
 3. In sbt-console execute command `publishLocal`
 4. Add line in your play project to project/plugins.sbt
    ```
-   addSbtPlugin("default" % "sbt-sass" % "0.1.8")
+   addSbtPlugin("default" % "sbt-sass" % "0.1.9")
    ```
 5. Run `activator`
 
